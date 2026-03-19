@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario ETA Reino Unido</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --bg:#f4f2ef; --card:#fffdf9; --ink:#201a18; --muted:#6a5f5b; --line:#d7cdc6; --navy:#1d3b6d; --navy-deep:#12284d; --red:#b22234; --red-soft:#f8e9eb; --soft:#eef4fb; }
+        * { box-sizing:border-box; }
+        body { margin:0; padding:20px; background:radial-gradient(circle at top left, rgba(178,34,52,.12), transparent 24%), radial-gradient(circle at top right, rgba(29,59,109,.12), transparent 26%), linear-gradient(180deg, #f2ede7, #f8f5f0); color:var(--ink); font:15px/1.45 "Segoe UI",sans-serif; }
+        .hero { max-width:1100px; margin:0 auto 18px; padding:24px; border-radius:22px; background:linear-gradient(135deg, var(--navy-deep), var(--navy), #365d92); color:#f8fbff; }
+        .hero h1 { margin:0; font-family:Georgia,serif; font-size:2.1rem; }
+        .hero p { margin:8px 0 0; color:#dce9fb; }
+        .wrap { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:minmax(0,1.3fr) 320px; gap:18px; }
+        .card,.side { background:var(--card); border:1px solid #eadfcc; border-radius:20px; box-shadow:0 14px 34px rgba(42,26,18,.08); }
+        .card { padding:24px; }
+        .side { padding:20px; position:sticky; top:16px; height:fit-content; }
+        h2,h3 { margin:0 0 10px; font-family:Georgia,serif; }
+        h2 { margin-top:24px; font-size:1.28rem; }
+        h3 { font-size:1.08rem; }
+        .grid,.grid3,.grid4 { display:grid; gap:14px; }
+        .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .grid3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+        .grid4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+        .field { margin-bottom:14px; }
+        .full { grid-column:1 / -1; }
+        label { display:block; margin-bottom:6px; font-weight:700; }
+        .hint { font-size:.83rem; color:var(--muted); }
+        input,select,textarea { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:12px; background:#fffdfa; color:var(--ink); }
+        textarea { min-height:90px; resize:vertical; }
+        .choice { display:flex; flex-wrap:wrap; gap:10px; }
+        .choice label { display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid var(--line); border-radius:999px; font-weight:600; }
+        .choice input { width:auto; margin:0; }
+        .box { margin:12px 0 16px; padding:14px; border:1px dashed #93a9c7; background:var(--soft); border-radius:14px; }
+        .declaration { margin-top:22px; padding:18px; border:1px solid #d9c5ca; background:linear-gradient(180deg, #fcf6f7, var(--red-soft)); border-radius:16px; }
+        .declaration ol { margin:10px 0 14px; padding-left:20px; color:#3d3531; }
+        .declaration li { margin-bottom:8px; }
+        .status { display:none; margin-bottom:14px; padding:12px; border-radius:12px; border:1px solid transparent; }
+        .status.error { display:block; background:#fff1f1; color:#a61b1b; border-color:#f1c9c9; }
+        .status.success { display:block; background:#eef8f1; color:#14623d; border-color:#bfe1cb; }
+        .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:20px; }
+        button { border:0; border-radius:999px; padding:12px 18px; font-weight:700; cursor:pointer; }
+        .primary { background:linear-gradient(135deg, var(--red), #cb3b4f); color:#fff; }
+        .secondary { background:linear-gradient(135deg, var(--navy), #416fa8); color:#fff; }
+        .summary { padding:14px; border-radius:14px; background:#f6f0ea; border:1px solid #eadfcc; }
+        .summary ul { margin:0; padding-left:18px; color:var(--muted); }
+        .summary li { margin-bottom:8px; }
+        .hidden { display:none; }
+        .saving { opacity:.75; pointer-events:none; }
+        @media (max-width:980px) { .wrap { grid-template-columns:1fr; } .side { position:static; } }
+        @media (max-width:760px) { body { padding:12px; } .grid,.grid3,.grid4 { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Formulario ETA Reino Unido</h1>
+        <p>Preencha os dados exatamente como constam no passaporte e nos documentos de viagem.</p>
+    </div>
+    <div class="wrap">
+        <main class="card">
+            <div class="status" id="statusBox"></div>
+            <form id="ukEtaForm">
+                <h2>1. Dados pessoais</h2>
+                <div class="grid">
+                    <div class="field"><label for="givenNames">Nome(s) como no passaporte</label><input id="givenNames" name="givenNames" type="text" data-required="1"></div>
+                    <div class="field"><label for="familyName">Sobrenome como no passaporte</label><input id="familyName" name="familyName" type="text" data-required="1"></div>
+                    <div class="field"><label for="otherNamesUsed">Ja usou outros nomes?</label><select id="otherNamesUsed" name="otherNamesUsed"><option value="Nao">Nao</option><option value="Sim">Sim</option></select></div>
+                    <div class="field"><label for="sex">Sexo</label><select id="sex" name="sex" data-required="1"><option value="">Selecione</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option><option value="Outro">Outro</option></select></div>
+                </div>
+                <div class="box hidden" id="otherNamesBox">
+                    <div class="grid">
+                        <div class="field"><label for="otherFamilyName">Outro sobrenome</label><input id="otherFamilyName" name="otherFamilyName" type="text"></div>
+                        <div class="field"><label for="otherGivenNames">Outro nome</label><input id="otherGivenNames" name="otherGivenNames" type="text"></div>
+                    </div>
+                </div>
+                <div class="grid4">
+                    <div class="field"><label for="dob">Data de nascimento</label><input id="dob" name="dob" type="date" data-required="1"></div>
+                    <div class="field"><label for="birthCountry">Pais de nascimento</label><input id="birthCountry" name="birthCountry" type="text" value="Brasil" data-required="1"></div>
+                    <div class="field"><label for="birthCity">Cidade de nascimento</label><input id="birthCity" name="birthCity" type="text" data-required="1"></div>
+                    <div class="field"><label for="nationality">Nacionalidade</label><input id="nationality" name="nationality" type="text" value="Brasileira" data-required="1"></div>
+                </div>
+
+                <h2>2. Passaporte</h2>
+                <div class="grid4">
+                    <div class="field"><label for="passportNumber">Numero do passaporte</label><input id="passportNumber" name="passportNumber" type="text" data-required="1"></div>
+                    <div class="field"><label for="passportCountry">Pais emissor</label><input id="passportCountry" name="passportCountry" type="text" value="Brasil" data-required="1"></div>
+                    <div class="field"><label for="passportIssueDate">Data de emissao</label><input id="passportIssueDate" name="passportIssueDate" type="date" data-required="1"></div>
+                    <div class="field"><label for="passportExpiryDate">Data de validade</label><input id="passportExpiryDate" name="passportExpiryDate" type="date" data-required="1"></div>
+                </div>
+                <div class="grid">
+                    <div class="field"><label for="passportImageReady">Foto da pagina do passaporte disponivel?</label><select id="passportImageReady" name="passportImageReady"><option value="Sim">Sim</option><option value="Nao">Nao</option></select></div>
+                    <div class="field"><label for="facePhotoReady">Foto atual do rosto disponivel?</label><select id="facePhotoReady" name="facePhotoReady"><option value="Sim">Sim</option><option value="Nao">Nao</option></select></div>
+                </div>
+
+                <h2>3. Contato</h2>
+                <div class="grid">
+                    <div class="field full"><label for="homeAddress">Endereco completo</label><input id="homeAddress" name="homeAddress" type="text" data-required="1"></div>
+                    <div class="field"><label for="homeCity">Cidade</label><input id="homeCity" name="homeCity" type="text" data-required="1"></div>
+                    <div class="field"><label for="homeState">Estado / provincia</label><input id="homeState" name="homeState" type="text" data-required="1"></div>
+                    <div class="field"><label for="homePostalCode">CEP</label><input id="homePostalCode" name="homePostalCode" type="text" data-required="1"></div>
+                    <div class="field"><label for="homeCountry">Pais</label><input id="homeCountry" name="homeCountry" type="text" value="Brasil" data-required="1"></div>
+                    <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" data-required="1"></div>
+                    <div class="field"><label for="phone">Telefone com codigo do pais</label><input id="phone" name="phone" type="text" placeholder="+55 ..." data-required="1"></div>
+                </div>
+
+                <h2>4. Viagem ao Reino Unido</h2>
+                <div class="grid3">
+                    <div class="field"><label for="travelPurpose">Motivo principal da viagem</label><select id="travelPurpose" name="travelPurpose" data-required="1"><option value="">Selecione</option><option value="Turismo">Turismo</option><option value="Visita a familiares ou amigos">Visita a familiares ou amigos</option><option value="Negocios">Negocios</option><option value="Estudo curto">Estudo curto</option><option value="Transito">Transito</option><option value="Outro">Outro</option></select></div>
+                    <div class="field"><label for="estimatedArrival">Data estimada de chegada</label><input id="estimatedArrival" name="estimatedArrival" type="date" data-required="1"></div>
+                    <div class="field"><label for="estimatedStay">Tempo estimado de permanencia</label><input id="estimatedStay" name="estimatedStay" type="text" placeholder="Ex.: 10 dias" data-required="1"></div>
+                </div>
+                <div class="field"><label for="travelPurposeOther">Se marcou outro, explique</label><textarea id="travelPurposeOther" name="travelPurposeOther"></textarea></div>
+                <div class="grid">
+                    <div class="field"><label for="hasUkContact">Tem endereco, hotel ou contato no Reino Unido?</label><select id="hasUkContact" name="hasUkContact"><option value="Sim">Sim</option><option value="Nao">Nao</option></select></div>
+                    <div class="field"><label for="whoPays">Quem paga a viagem?</label><select id="whoPays" name="whoPays"><option value="Eu mesmo">Eu mesmo</option><option value="Outra pessoa">Outra pessoa</option><option value="Empresa">Empresa</option></select></div>
+                </div>
+                <div class="box" id="ukContactBox">
+                    <div class="grid">
+                        <div class="field"><label for="ukContactName">Nome do contato / hotel</label><input id="ukContactName" name="ukContactName" type="text"></div>
+                        <div class="field"><label for="ukContactPhone">Telefone do contato</label><input id="ukContactPhone" name="ukContactPhone" type="text"></div>
+                        <div class="field full"><label for="ukAddress">Endereco no Reino Unido</label><textarea id="ukAddress" name="ukAddress"></textarea></div>
+                    </div>
+                </div>
+                <div class="box hidden" id="payerBox">
+                    <div class="grid">
+                        <div class="field"><label for="payerName">Nome do pagante</label><input id="payerName" name="payerName" type="text"></div>
+                        <div class="field"><label for="payerRelationship">Relacao com o solicitante</label><input id="payerRelationship" name="payerRelationship" type="text"></div>
+                        <div class="field"><label for="payerPhone">Telefone do pagante</label><input id="payerPhone" name="payerPhone" type="text"></div>
+                        <div class="field"><label for="payerEmail">E-mail do pagante</label><input id="payerEmail" name="payerEmail" type="email"></div>
+                    </div>
+                </div>
+
+                <h2>5. Trabalho e estudo</h2>
+                <div class="grid3">
+                    <div class="field"><label for="occupation">Ocupacao atual</label><input id="occupation" name="occupation" type="text" data-required="1"></div>
+                    <div class="field"><label for="employer">Empresa / instituicao</label><input id="employer" name="employer" type="text" data-required="1"></div>
+                    <div class="field"><label for="workCityCountry">Cidade e pais</label><input id="workCityCountry" name="workCityCountry" type="text" data-required="1"></div>
+                </div>
+                <div class="field"><label for="workAddress">Endereco da empresa / instituicao</label><textarea id="workAddress" name="workAddress"></textarea></div>
+
+                <h2>6. Suitability</h2>
+                <p class="hint">A ETA costuma incluir perguntas de suitability e criminality. Responda com total precisao.</p>
+                <div class="grid">
+                    <div class="field"><label for="refusedUk">Ja teve visto, entrada ou permissao negada no Reino Unido?</label><select id="refusedUk" name="refusedUk" class="suitability"><option value="Nao">Nao</option><option value="Sim">Sim</option></select></div>
+                    <div class="field"><label for="removedUk">Ja foi removido, deportado ou obrigado a sair de algum pais?</label><select id="removedUk" name="removedUk" class="suitability"><option value="Nao">Nao</option><option value="Sim">Sim</option></select></div>
+                    <div class="field"><label for="criminalConviction">Ja teve condenacao criminal?</label><select id="criminalConviction" name="criminalConviction" class="suitability"><option value="Nao">Nao</option><option value="Sim">Sim</option></select></div>
+                    <div class="field"><label for="terrorLinks">Ja teve envolvimento com terrorismo, extremismo, crimes de guerra ou organizacoes violentas?</label><select id="terrorLinks" name="terrorLinks" class="suitability"><option value="Nao">Nao</option><option value="Sim">Sim</option></select></div>
+                </div>
+                <div class="box hidden" id="suitabilityBox">
+                    <div class="field"><label for="suitabilityDetails">Explique qualquer resposta "Sim"</label><textarea id="suitabilityDetails" name="suitabilityDetails" placeholder="Inclua pais, datas, motivo e resultado final."></textarea></div>
+                </div>
+
+                <div class="declaration">
+                    <h2 style="margin-top:0">7. Declaracao</h2>
+                    <p>Eu, <input id="declarationName" name="declarationName" type="text" style="display:inline-block;width:auto;min-width:240px" data-required="1">, declaro que as informacoes prestadas neste formulario sao verdadeiras, completas e corretas conforme o meu melhor conhecimento.</p>
+                    <ol>
+                        <li>Reconheco que a autorizacao de viagem e decidida exclusivamente pelas autoridades competentes do Reino Unido.</li>
+                        <li>Declaro que os dados enviados poderao ser verificados pelas autoridades imigratorias.</li>
+                        <li>Estou ciente de que podera ser necessario apresentar documentos ou esclarecimentos adicionais.</li>
+                        <li>Autorizo a empresa responsavel pelo atendimento a usar estas informacoes para preparar minha solicitacao online de ETA.</li>
+                    </ol>
+                    <div class="grid3">
+                        <div class="field"><label for="declarationCity">Local</label><input id="declarationCity" name="declarationCity" type="text" data-required="1"></div>
+                        <div class="field"><label for="declarationDate">Data</label><input id="declarationDate" name="declarationDate" type="date" data-required="1"></div>
+                        <div class="field"><label>Aceite</label><div class="choice"><label><input id="declarationAccept" name="declarationAccept" type="checkbox" data-required-check="1"> Concordo com a declaracao</label></div></div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="primary" id="submitBtn">Enviar formulario</button>
+                    <button type="button" class="secondary" id="clearBtn">Limpar campos</button>
+                </div>
+            </form>
+        </main>
+        <aside class="side">
+            <div class="summary">
+                <h3>Resumo</h3>
+                <ul>
+                    <li>Dados pessoais e passaporte</li>
+                    <li>Contato e viagem ao Reino Unido</li>
+                    <li>Trabalho ou estudo atual</li>
+                    <li>Suitability e declaracao final</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+    <script type="module" src="./uk_eta_cliente.js"></script>
+</body>
+</html>
